@@ -33,6 +33,8 @@ void setup()
 {
   // Disable brownout
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
+  // Initialize FLASH_GPIO_NUM pin
+  pinMode(FLASH_GPIO_NUM, OUTPUT);
 
   Serial.begin(115200);
   Serial.setDebugOutput(true);
@@ -85,8 +87,12 @@ void setup()
   EEPROM.put(0, id);
   EEPROM.commit();
 
+  // Turn on flash
+  digitalWrite(FLASH_GPIO_NUM, HIGH);
   // Take Picture with Camera
   auto fb = esp_camera_fb_get();
+  // Turn off flash
+  digitalWrite(FLASH_GPIO_NUM, LOW);
   if (!fb)
   {
     log_e("Camera capture failed");
@@ -109,8 +115,6 @@ void setup()
 
   esp_camera_fb_return(fb);
 
-  // Initialize FLASH_GPIO_NUM pin
-  pinMode(FLASH_GPIO_NUM, OUTPUT);
   digitalWrite(FLASH_GPIO_NUM, LOW);
   // Hold the value during deep sleep
   gpio_hold_en(FLASH_GPIO_NUM);
