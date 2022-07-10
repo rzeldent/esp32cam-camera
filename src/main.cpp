@@ -14,6 +14,7 @@ constexpr camera_config_t ai_thinker = camera_config_t{.pin_pwdn = 32, .pin_rese
 constexpr camera_config_t ttgo_cam = camera_config_t{.pin_pwdn = 26, .pin_reset = -1, .pin_xclk = 32, .pin_sscb_sda = 13, .pin_sscb_scl = 12, .pin_d7 = 39, .pin_d6 = 36, .pin_d5 = 23, .pin_d4 = 18, .pin_d3 = 15, .pin_d2 = 4, .pin_d1 = 14, .pin_d0 = 5, .pin_vsync = 27, .pin_href = 25, .pin_pclk = 19, .xclk_freq_hz = 20000000, .ledc_timer = LEDC_TIMER_0, .ledc_channel = LEDC_CHANNEL_0, .pixel_format = PIXFORMAT_JPEG, .frame_size = FRAMESIZE_SVGA, .jpeg_quality = 12, .fb_count = 2};
 
 camera_config_t camera_config = ai_thinker;
+
 /*
  * SD Card | ESP32
  *    D2       12
@@ -53,7 +54,7 @@ void setup()
   }
 
   log_i("Initialize the camera");
-  esp_err_t err = esp_camera_init(&camera_config);
+  auto err = esp_camera_init(&camera_config);
   if (err != ESP_OK)
   {
     log_e("Camera init failed with error 0x%x", err);
@@ -80,22 +81,19 @@ void setup()
   // initialize EEPROM. We read just one int; the id
   EEPROM.begin(sizeof(id));
   EEPROM.get(0, id);
-
   id++;
-
   EEPROM.put(0, id);
   EEPROM.commit();
 
   // Take Picture with Camera
   auto fb = esp_camera_fb_get();
-
   if (!fb)
   {
     log_e("Camera capture failed");
     return;
   }
 
-  String file_name = "/image" + String(id) + ".jpg";
+  auto file_name = "/image" + String(id) + ".jpg";
   log_i("Saving image to %s", file_name.c_str());
   auto file = SD_MMC.open(file_name.c_str(), FILE_WRITE);
   if (!file)
