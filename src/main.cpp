@@ -40,20 +40,19 @@ void setup()
   Serial.setDebugOutput(true);
   esp_log_level_set("*", ESP_LOG_VERBOSE);
 
-  if (psramFound())
-  {
-    log_i("PSRAM found. Setting UXGA resolution");
-    camera_config.frame_size = FRAMESIZE_UXGA;
-    camera_config.jpeg_quality = 10;
-    camera_config.fb_count = 1;
-  }
-  else
-  {
-    log_i("No PSRAM found. Setting SVGA resolution");
-    camera_config.frame_size = FRAMESIZE_SVGA;
-    camera_config.jpeg_quality = 12;
-    camera_config.fb_count = 1;
-  }
+  /*
+  Is possible to increate resolution but AGC and AWB are not working because need to settle.
+    if (psramFound())
+    {
+      log_i("PSRAM found. Setting UXGA resolution");
+      camera_config.frame_size = FRAMESIZE_UXGA;
+      camera_config.jpeg_quality = 10;
+      camera_config.fb_count = 1;
+    }
+  */
+
+ // Use QVGA (320x240)
+  camera_config.frame_size = FRAMESIZE_QVGA;
 
   log_i("Initialize the camera");
   auto err = esp_camera_init(&camera_config);
@@ -77,9 +76,12 @@ void setup()
     log_e("No SD Card attached");
     return;
   }
+}
 
+// put your main code here, to run repeatedly:
+void loop()
+{
   ulong id;
-
   // initialize EEPROM. We read just one int; the id
   EEPROM.begin(sizeof(id));
   EEPROM.get(0, id);
@@ -87,45 +89,33 @@ void setup()
   EEPROM.put(0, id);
   EEPROM.commit();
 
-  // Turn on flash
-  digitalWrite(FLASH_GPIO_NUM, HIGH);
   // Take Picture with Camera
   auto fb = esp_camera_fb_get();
-  // Turn off flash
-  digitalWrite(FLASH_GPIO_NUM, LOW);
-  if (!fb)
+  if (fb)
   {
+    auto file_name = "/image" + String(id) + ".jpg";
+    log_i("Saving image to %s", file_name.c_str());
+    auto file = SD_MMC.open(file_name.c_str(), FILE_WRITE);
+    if (file)
+    {
+      file.write(fb->buf, fb->len);
+      file.close();
+      log_i("Image %s saved", file_name.c_str());
+
+      esp_camera_fb_return(fb);
+    }
+    else
+      log_e("Failed to open file for writing");
+  }
+  else
     log_e("Camera capture failed");
-    return;
-  }
 
-  auto file_name = "/image" + String(id) + ".jpg";
-  log_i("Saving image to %s", file_name.c_str());
-  auto file = SD_MMC.open(file_name.c_str(), FILE_WRITE);
-  if (!file)
-  {
-    log_e("Failed to open file for writing");
-    esp_camera_fb_return(fb);
-    return;
-  }
-
-  file.write(fb->buf, fb->len);
-  file.close();
-  log_i("Image %s saved", file_name.c_str());
-
-  esp_camera_fb_return(fb);
-
-  digitalWrite(FLASH_GPIO_NUM, LOW);
-  // Hold the value during deep sleep
-  gpio_hold_en(FLASH_GPIO_NUM);
+   digitalWrite(FLASH_GPIO_NUM, LOW);
+  //  Hold the value during deep sleep
+   gpio_hold_en(FLASH_GPIO_NUM);
 
   log_i("Going to deep sleep");
   Serial.flush();
 
   esp_deep_sleep_start();
-}
-
-// put your main code here, to run repeatedly:
-void loop()
-{
 }
