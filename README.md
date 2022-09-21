@@ -1,5 +1,8 @@
 # esp32cam-camera
 
+![status badge](https://github.com/rzeldent/esp32cam-camera/actions/workflows/main.yml/badge.svg?event=push)
+
+
 ## Simple camera capture and storage on the SD card.
 
 When the ESP32 is turned on it takes a picture and stores it on the SD card.
