@@ -1,6 +1,10 @@
 # esp32cam-camera
 
-Simple camera capture and storage on the SD card.
+## Simple camera capture and storage on the SD card.
+
+When the ESP32 is turned on it takes a picture and stores it on the SD card.
+Then the device goes back to deep sleep...
+
 
 Special features:
 - Does not turn on the flash LED
