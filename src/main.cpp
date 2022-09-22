@@ -7,7 +7,7 @@
 
 #include <EEPROM.h>
 
-#include <camera_io.h>
+#include <esp_camera_io.h>
 
 // Change the line below to reflect the camera you are using!
 camera_config_t camera_config = esp32cam_aithinker_settings;
