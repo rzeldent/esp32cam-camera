@@ -1,6 +1,6 @@
 # esp32cam-camera
 
-![status badge](https://github.com/rzeldent/esp32cam-camera/actions/workflows/main.yml/badge.svg?event=push)
+[![Platform IO CI](https://github.com/rzeldent/esp32cam-camera/actions/workflows/main.yml/badge.svg)](https://github.com/rzeldent/esp32cam-camera/actions/workflows/main.yml)
 
 
 ## Camera capture and store images on the SD card.
